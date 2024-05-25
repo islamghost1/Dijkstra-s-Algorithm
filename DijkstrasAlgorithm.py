@@ -1,5 +1,6 @@
 import heapq
-
+import networkx as nx
+import matplotlib.pyplot as plt
 def dijkstra(graph, start, end):
     # Create a dictionary to store the shortest distance to each node
     distances = {node: float('infinity') for node in graph}
@@ -41,7 +42,30 @@ def dijkstra(graph, start, end):
     path = path[::-1]  # Reverse the path to get it from start to end
     
     return distances[end], path
-
+def plot_graph(graph, path):
+    G = nx.Graph()
+    
+    # Add edges to the graph
+    for node in graph:
+        for neighbor, weight in graph[node].items():
+            G.add_edge(node, neighbor, weight=weight)
+    
+    pos = nx.spring_layout(G)  # positions for all nodes
+    
+    # Draw the nodes and edges
+    nx.draw_networkx_nodes(G, pos, node_size=700)
+    nx.draw_networkx_edges(G, pos, edgelist=G.edges(), width=2)
+    nx.draw_networkx_labels(G, pos, font_size=20, font_family='sans-serif')
+    
+    # Highlight the path
+    path_edges = list(zip(path, path[1:]))
+    nx.draw_networkx_edges(G, pos, edgelist=path_edges, width=8, alpha=0.5, edge_color='r')
+    
+    edge_labels = {(u, v): d['weight'] for u, v, d in G.edges(data=True)}
+    nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels)
+    
+    plt.axis('off')
+    plt.show()
 # Example graph represented as an adjacency list
 graph = {
     'A': {'B': 1.2, 'H': 4},
@@ -62,3 +86,4 @@ for road in RoadMap:
     distance, path = dijkstra(graph, start, destination)
     print(f"Shortest distance from {start} to {destination} is {distance}")
     print(f"Path: {path}")
+    plot_graph(graph,path)
